@@ -25,7 +25,9 @@ const server = http.createServer((req, res) => {
   // GET /
   // GET /
   if (url === '/' && method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'text/html' })
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8; charset=utf-8'
+    })
     return res.end(`
       <body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
         background:linear-gradient(135deg,#0f172a,#1e1b4b);font-family:Segoe UI,sans-serif;color:#e2e8f0;text-align:center;">
@@ -48,7 +50,7 @@ const server = http.createServer((req, res) => {
 
   // GET /about
   if (url === '/about' && method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' })
     return res.end(
       'Library Book Management App - built with Node.js HTTP and FS modules.'
     )
@@ -59,10 +61,14 @@ const server = http.createServer((req, res) => {
     const filePath = path.join(__dirname, 'public', 'index.html')
     return fs.readFile(filePath, (err, content) => {
       if (err) {
-        res.writeHead(500, { 'Content-Type': 'text/html' })
+        res.writeHead(500, {
+          'Content-Type': 'text/html; charset=utf-8; charset=utf-8'
+        })
         return res.end('<h1>500 - Could not read file</h1>')
       }
-      res.writeHead(200, { 'Content-Type': 'text/html' })
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8; charset=utf-8'
+      })
       res.end(content)
     })
   }
