@@ -23,9 +23,22 @@ const server = http.createServer((req, res) => {
   const { url, method } = req
 
   // GET /
+  // GET /
   if (url === '/' && method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'text/html' })
-    return res.end('<h1>Welcome to the Library Book Management System</h1>')
+    return res.end(`
+      <body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+        background:linear-gradient(135deg,#0f172a,#1e1b4b);font-family:Segoe UI,sans-serif;color:#e2e8f0;text-align:center;">
+        <div>
+          <h1 style="font-size:2.8rem;margin:0 0 10px;">📚 Welcome to the Library</h1>
+          <p style="color:#94a3b8;">Book Management System</p>
+          <a href="/home" style="display:inline-block;margin-top:20px;padding:12px 24px;border-radius:10px;
+            background:linear-gradient(90deg,#38bdf8,#a78bfa);color:#0f172a;font-weight:700;text-decoration:none;">
+            Enter Library →
+          </a>
+        </div>
+      </body>
+    `)
   }
 
   // GET /books

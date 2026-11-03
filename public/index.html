@@ -2,14 +2,208 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Library Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Library Book Management</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 40px; }
+    header h1 {
+      font-size: 2.6rem;
+      background: linear-gradient(90deg, #38bdf8, #a78bfa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    header p { color: #94a3b8; margin-top: 8px; }
+
+    .badge {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #7dd3fc;
+      font-size: 0.85rem;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .panel h2 { margin-bottom: 16px; font-size: 1.3rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 18px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); border-color: #a78bfa; }
+    .card .id { font-size: 0.75rem; color: #94a3b8; }
+    .card h3 { margin: 6px 0 4px; font-size: 1.1rem; }
+    .card .author { color: #94a3b8; font-size: 0.9rem; }
+    .card .price { margin-top: 12px; font-weight: 700; color: #4ade80; font-size: 1.1rem; }
+
+    form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    input {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(15, 23, 42, 0.7);
+      color: #e2e8f0;
+      font-size: 0.95rem;
+    }
+    input:focus { outline: 2px solid #38bdf8; }
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #38bdf8, #a78bfa);
+      color: #0f172a;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+
+    #message { margin-top: 12px; font-size: 0.9rem; min-height: 1.2em; }
+    .ok { color: #4ade80; }
+    .err { color: #f87171; }
+
+    nav { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    nav a {
+      color: #7dd3fc;
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid rgba(125, 211, 252, 0.3);
+      border-radius: 8px;
+    }
+    nav a:hover { background: rgba(125, 211, 252, 0.12); }
+
+    footer { text-align: center; color: #64748b; font-size: 0.85rem; margin-top: 30px; }
+  </style>
 </head>
 <body>
-  <h1>Library Book Management</h1>
-  <p>This page is served using the Node.js FS module.</p>
-  <ul>
-    <li><a href="/books">View Books</a></li>
-    <li><a href="/about">About</a></li>
-  </ul>
+  <div class="container">
+
+    <header>
+      <h1>📚 Library Book Management</h1>
+      <p>Built with Node.js HTTP and FS modules</p>
+      <span class="badge">This page is served using the FS module</span>
+    </header>
+
+    <section class="panel">
+      <h2>Available Books</h2>
+      <div class="grid" id="bookList">Loading books...</div>
+    </section>
+
+    <section class="panel">
+      <h2>Add a New Book</h2>
+      <form id="bookForm">
+        <input type="number" id="id" placeholder="ID" required>
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="text" id="author" placeholder="Author" required>
+        <input type="number" id="price" placeholder="Price" required>
+        <button type="submit">Add Book</button>
+      </form>
+      <p id="message"></p>
+    </section>
+
+    <nav>
+      <a href="/">Home</a>
+      <a href="/books">Books (JSON)</a>
+      <a href="/about">About</a>
+    </nav>
+
+    <footer>MT1 Lab Examination • Node.js</footer>
+  </div>
+
+  <script>
+    const bookList = document.getElementById('bookList');
+    const message = document.getElementById('message');
+
+    // Fetch books from our own server (GET /books) and draw cards
+    async function loadBooks() {
+      const response = await fetch('/books');
+      const books = await response.json();
+      bookList.innerHTML = '';
+
+      books.forEach((book) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const id = document.createElement('div');
+        id.className = 'id';
+        id.textContent = 'ID #' + book.id;
+
+        const title = document.createElement('h3');
+        title.textContent = book.title;
+
+        const author = document.createElement('div');
+        author.className = 'author';
+        author.textContent = 'by ' + book.author;
+
+        const price = document.createElement('div');
+        price.className = 'price';
+        price.textContent = '₹' + book.price;
+
+        card.append(id, title, author, price);
+        bookList.appendChild(card);
+      });
+    }
+
+    // Send the form to our own server (POST /add-book)
+    document.getElementById('bookForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const newBook = {
+        id: Number(document.getElementById('id').value),
+        title: document.getElementById('title').value,
+        author: document.getElementById('author').value,
+        price: Number(document.getElementById('price').value),
+      };
+
+      const response = await fetch('/add-book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBook),
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        message.className = 'ok';
+        message.textContent = result.message;
+        event.target.reset();
+        loadBooks();
+      } else {
+        message.className = 'err';
+        message.textContent = result.error;
+      }
+    });
+
+    loadBooks();
+  </script>
 </body>
 </html>
